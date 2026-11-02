@@ -14,4 +14,22 @@
 
     <artifactId>common</artifactId>
 
+    <dependencies>
+
+    <!-- JSON Serialization / Deserialization -->
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.18.3</version>
+    </dependency>
+
+    <!-- Java Date / Time Support -->
+    <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jsr310</artifactId>
+        <version>2.18.3</version>
+    </dependency>
+
+</dependencies>
+
 </project>

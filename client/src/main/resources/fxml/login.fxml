@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.poli.client.controller.LoginController"
+      alignment="CENTER"
+      spacing="15">
+
+    <padding>
+        <Insets top="30" right="40" bottom="30" left="40"/>
+    </padding>
+
+    <Label text="CHAT SOCKET POLI"
+           style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+
+    <TextField fx:id="hostField"
+               promptText="Dirección IP"
+               text="127.0.0.1"/>
+
+    <TextField fx:id="portField"
+               promptText="Puerto"
+               text="5000"/>
+
+    <TextField fx:id="usernameField"
+               promptText="Nombre de usuario"/>
+
+    <Button text="Conectar"
+            onAction="#connectToServer"
+            maxWidth="Infinity"/>
+
+    <Label fx:id="statusLabel"
+           text="Desconectado"/>
+
+</VBox>
