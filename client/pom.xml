@@ -14,7 +14,7 @@
     <artifactId>client</artifactId>
 
     <properties>
-        <javafx.version>21.0.6</javafx.version>
+        <javafx.version>25.0.5</javafx.version>
     </properties>
 
     <dependencies>
