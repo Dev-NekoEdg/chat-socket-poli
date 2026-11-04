@@ -6,13 +6,18 @@ import com.poli.common.dto.Response;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 public class SocketClient {
 
     private Socket socket;
     private BufferedReader reader;
     private PrintWriter writer;
-
+ 
+    // Hilo para escuchar las respuestas del servidor.
+    private Thread listenerThread;
+    private volatile boolean listening = false;
+ 
     private final ObjectMapper mapper = new ObjectMapper();
 
     public void connect(String host, int port) throws IOException {
@@ -20,17 +25,18 @@ public class SocketClient {
         socket = new Socket(host, port);
 
         reader = new BufferedReader(
-            new InputStreamReader(socket.getInputStream())
+            new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8)
         );
 
         writer = new PrintWriter(
-            socket.getOutputStream(), true
+            new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8),
+            true
         );
 
         System.out.println("Conectado al servidor.");
     }
 
-    public void send(Request request) throws IOException {
+    public synchronized void send(Request request) throws IOException {
 
         String json = mapper.writeValueAsString(request);
 
@@ -54,6 +60,48 @@ public class SocketClient {
             Response.class
         );
     }
+
+     public void startListening(IResponseListener listener) {
+
+        if (listening) {
+            return;
+        }
+        listening = true;
+
+        listenerThread = new Thread(() -> {
+
+            try {
+
+                String json;
+
+                while (listening && (json = reader.readLine()) != null) 
+                {
+                            Response response = mapper.readValue(json, Response.class);
+                            listener.onResponse(response);
+                }
+
+            } catch (IOException e) {
+
+                if (listening) {
+                    listener.onError(e);
+                }
+
+            } finally {
+
+                listening = false;
+
+                System.out.println(
+                    "Hilo de escucha finalizado."
+                );
+            }
+
+        });
+
+        listenerThread.setName("SocketClient-Listener");
+        listenerThread.setDaemon(true);
+        listenerThread.start();
+    }
+
 
     public void disconnect() throws IOException {
 
