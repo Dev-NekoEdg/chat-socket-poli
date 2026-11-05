@@ -1,59 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Priority?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.Region?>
 
 <BorderPane
     xmlns="http://javafx.com/javafx/21"
     xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="com.poli.client.controller.MainController">
 
-    <!-- Barra superior de sesión -->
+    <!-- Barra superior de sesión: siempre visible -->
     <top>
-        <HBox
-            alignment="CENTER_LEFT"
-            spacing="15"
-            style="-fx-background-color: #263238;"
-            padding="12">
+        <HBox styleClass="top-bar" alignment="CENTER_LEFT" spacing="15">
+            <!-- padding no se puede escribir como atributo; se usa Insets -->
+            <padding>
+                <Insets top="12" right="16" bottom="12" left="16"/>
+            </padding>
 
-            <Label
-                text="Chat Socket Poli"
-                style="-fx-text-fill: white;
-                       -fx-font-size: 18px;
-                       -fx-font-weight: bold;" />
+            <Label text="Chat Socket Poli" styleClass="top-bar-title"/>
 
-            <Label
-                fx:id="usernameLabel"
-                text="Usuario:"
-                style="-fx-text-fill: white;
-                       -fx-font-size: 14px;" />
+            <!-- Espaciador: empuja usuario y botón hacia la derecha -->
+            <Region HBox.hgrow="ALWAYS"/>
 
-            <Button
-                text="Cerrar sesión"
-                onAction="#handleLogout"
-                style="-fx-background-color: #d9534f;
-                       -fx-text-fill: white;" />
+            <Label fx:id="usernameLabel" text="Usuario:" styleClass="top-bar-user"/>
 
+            <Button text="Cerrar sesión" onAction="#handleLogout" styleClass="button-danger"/>
         </HBox>
     </top>
 
-    <!-- Contenedor de las vistas -->
+    <!-- Contenedor donde se cargan chatroomList, newChatroom y chatroom -->
     <center>
-        <BorderPane
-            fx:id="contentPane"
-            style="-fx-background-color: #f4f6f8;">
-
-            <center>
-                <Label
-                    text="Bienvenido al Chat Socket Poli"
-                    style="-fx-font-size: 20px;" />
-            </center>
-
-        </BorderPane>
+        <BorderPane fx:id="contentPane" styleClass="content-pane"/>
     </center>
 
 </BorderPane>

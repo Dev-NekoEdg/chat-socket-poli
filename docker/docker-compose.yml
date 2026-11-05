@@ -1,0 +1,47 @@
+# ==========================================
+# Chat Socket Poli - Base de datos
+#
+# Uso (desde la carpeta docker/):
+#   docker compose up -d --build   -> crear/levantar la base de datos
+#   docker compose logs -f mysql   -> ver logs
+#   docker compose down            -> detener (los datos se conservan)
+#
+# Los valores por defecto se pueden cambiar con un archivo .env
+# (ver .env.example).
+# ==========================================
+
+# Nombre propio del proyecto. Sin esto, Docker usa el nombre de la carpeta
+# ("docker") y puede chocar con otros proyectos que también tengan una
+# carpeta docker/ con un servicio "mysql".
+name: chat-socket-poli
+
+services:
+  mysql:
+    build: .
+    image: chat-socket-poli-mysql
+    container_name: chat-socket-poli-mysql
+    restart: unless-stopped
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_poli_2026}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-chat_socket_poli}
+      MYSQL_USER: ${MYSQL_USER:-chat_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-chat_pass_2026}
+      TZ: America/Bogota
+
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+
+    volumes:
+      # Datos de MySQL (persisten entre reinicios del contenedor).
+      - ./data/mysql:/var/lib/mysql
+      # Scripts de carga inicial (solo lectura).
+      - ./DDL:/scripts/DDL:ro
+      - ./DML:/scripts/DML:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s

@@ -88,3 +88,11 @@ credentials/
 *.swp
 *.swo
 *~
+
+# ==========================================
+# DOCKER
+# ==========================================
+
+# Datos de MySQL generados por el contenedor
+docker/data/*
+!docker/data/.gitkeep

@@ -1,8 +1,8 @@
 package com.poli.client.socket;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.poli.common.dto.Request;
 import com.poli.common.dto.Response;
+import com.poli.common.util.JsonUtil;
 
 import java.io.*;
 import java.net.Socket;
@@ -13,12 +13,10 @@ public class SocketClient {
     private Socket socket;
     private BufferedReader reader;
     private PrintWriter writer;
- 
+
     // Hilo para escuchar las respuestas del servidor.
     private Thread listenerThread;
     private volatile boolean listening = false;
- 
-    private final ObjectMapper mapper = new ObjectMapper();
 
     public void connect(String host, int port) throws IOException {
 
@@ -38,15 +36,21 @@ public class SocketClient {
 
     public synchronized void send(Request request) throws IOException {
 
-        String json = mapper.writeValueAsString(request);
+        if (writer == null) {
+            throw new IOException("No hay conexión con el servidor");
+        }
 
-        writer.println(json);
+        writer.println(JsonUtil.toJson(request));
 
         if (writer.checkError()) {
             throw new IOException("No se pudo enviar la solicitud");
         }
     }
 
+    /**
+     * Lectura bloqueante de una sola respuesta. Solo debe usarse antes de
+     * llamar a startListening (por ejemplo, durante el login).
+     */
     public Response receive() throws IOException {
 
         String json = reader.readLine();
@@ -55,13 +59,10 @@ public class SocketClient {
             throw new IOException("El servidor cerró la conexión");
         }
 
-        return mapper.readValue(
-            json,
-            Response.class
-        );
+        return JsonUtil.fromJson(json, Response.class);
     }
 
-     public void startListening(IResponseListener listener) {
+    public void startListening(IResponseListener listener) {
 
         if (listening) {
             return;
@@ -74,10 +75,17 @@ public class SocketClient {
 
                 String json;
 
-                while (listening && (json = reader.readLine()) != null) 
-                {
-                            Response response = mapper.readValue(json, Response.class);
-                            listener.onResponse(response);
+                while (listening && (json = reader.readLine()) != null) {
+                    try {
+                        listener.onResponse(JsonUtil.fromJson(json, Response.class));
+                    } catch (UncheckedIOException e) {
+                        System.err.println("Respuesta inválida del servidor: " + json);
+                    }
+                }
+
+                // readLine() == null: el servidor cerró la conexión.
+                if (listening) {
+                    listener.onError(new IOException("El servidor cerró la conexión"));
                 }
 
             } catch (IOException e) {
@@ -90,11 +98,8 @@ public class SocketClient {
 
                 listening = false;
 
-                System.out.println(
-                    "Hilo de escucha finalizado."
-                );
+                System.out.println("Hilo de escucha finalizado.");
             }
-
         });
 
         listenerThread.setName("SocketClient-Listener");
@@ -102,8 +107,11 @@ public class SocketClient {
         listenerThread.start();
     }
 
-
     public void disconnect() throws IOException {
+
+        // Se marca antes de cerrar para que el hilo de escucha
+        // no reporte el cierre como un error.
+        listening = false;
 
         if (socket != null && !socket.isClosed()) {
             socket.close();

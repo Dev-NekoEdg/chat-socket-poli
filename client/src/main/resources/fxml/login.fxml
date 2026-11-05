@@ -14,8 +14,7 @@
         <Insets top="30" right="40" bottom="30" left="40"/>
     </padding>
 
-    <Label text="CHAT SOCKET POLI"
-           style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+    <Label text="CHAT SOCKET POLI" styleClass="title"/>
 
     <TextField fx:id="hostField"
                promptText="Dirección IP"
@@ -25,14 +24,21 @@
                promptText="Puerto"
                text="5000"/>
 
+    <!-- Enter en el campo de usuario también conecta -->
     <TextField fx:id="usernameField"
-               promptText="Nombre de usuario"/>
+               promptText="Nombre de usuario"
+               onAction="#connectToServer"/>
 
-    <Button text="Conectar"
+    <Button fx:id="connectButton"
+            text="Conectar"
             onAction="#connectToServer"
+            defaultButton="true"
+            styleClass="button-primary"
             maxWidth="Infinity"/>
 
     <Label fx:id="statusLabel"
-           text="Desconectado"/>
+           text="Desconectado"
+           wrapText="true"
+           styleClass="muted"/>
 
 </VBox>

@@ -1,0 +1,145 @@
+/* ===== Base ===== */
+
+.root {
+    -fx-font-size: 13px;
+    -color-primary: #1976d2;
+    -color-primary-dark: #115293;
+    -color-danger: #d9534f;
+    -color-muted: #607d8b;
+}
+
+.title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.field-label {
+    -fx-font-weight: bold;
+}
+
+.muted {
+    -fx-text-fill: -color-muted;
+}
+
+.status-error {
+    -fx-text-fill: -color-danger;
+}
+
+.status-info {
+    -fx-text-fill: -color-muted;
+}
+
+/* ===== Botones ===== */
+
+.button-primary {
+    -fx-background-color: -color-primary;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.button-primary:hover {
+    -fx-background-color: -color-primary-dark;
+}
+
+.button-danger {
+    -fx-background-color: -color-danger;
+    -fx-text-fill: white;
+}
+
+.button-danger:hover {
+    -fx-background-color: derive(-color-danger, -15%);
+}
+
+/* ===== Barra superior ===== */
+
+.top-bar {
+    -fx-background-color: #263238;
+}
+
+.top-bar-title {
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.top-bar-user {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+
+.content-pane {
+    -fx-background-color: #f4f6f8;
+}
+
+/* ===== Lista de chatrooms ===== */
+
+.room-list .list-cell {
+    -fx-padding: 0;
+    -fx-cursor: hand;
+}
+
+.room-cell {
+    -fx-padding: 10 14 10 14;
+}
+
+.room-name {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.room-tag {
+    -fx-font-size: 11px;
+    -fx-padding: 1 8 1 8;
+    -fx-background-radius: 10;
+}
+
+.room-tag-private {
+    -fx-background-color: #fdecea;
+    -fx-text-fill: #b71c1c;
+}
+
+.room-tag-public {
+    -fx-background-color: #e8f5e9;
+    -fx-text-fill: #1b5e20;
+}
+
+.room-list .list-cell:selected .room-name,
+.room-list .list-cell:selected .muted {
+    -fx-text-fill: white;
+}
+
+/* ===== Mensajes ===== */
+
+.message-list {
+    -fx-background-color: white;
+}
+
+.message-list .list-cell,
+.message-list .list-cell:filled:selected,
+.message-list .list-cell:filled:hover {
+    -fx-background-color: transparent;
+    -fx-padding: 4 8 4 8;
+}
+
+.message-bubble {
+    -fx-padding: 8 12 8 12;
+    -fx-background-radius: 12;
+}
+
+.message-own {
+    -fx-background-color: #d7e9fb;
+}
+
+.message-other {
+    -fx-background-color: #eceff1;
+}
+
+.message-author {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-muted;
+}
+
+.message-content {
+    -fx-text-fill: #212121;
+}

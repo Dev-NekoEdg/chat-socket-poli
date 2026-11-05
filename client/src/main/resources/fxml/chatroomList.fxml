@@ -4,10 +4,41 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.poli.client.controller.ChatRoomListController"
-      alignment="CENTER"
-      spacing="15">
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.poli.client.controller.ChatRoomListController">
 
-</VBox>
+    <padding>
+        <Insets top="16" right="20" bottom="12" left="20"/>
+    </padding>
+
+    <!-- Encabezado: título a la izquierda, botones en la esquina superior derecha -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <padding>
+                <Insets bottom="12"/>
+            </padding>
+
+            <Label text="Mis conversaciones" styleClass="title"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <Button text="Actualizar" onAction="#requestRooms"/>
+            <Button text="+ Nuevo chatroom" onAction="#handleNewChatRoom" styleClass="button-primary"/>
+        </HBox>
+    </top>
+
+    <!-- Lista de conversaciones: nombre, privado/público y participantes -->
+    <center>
+        <ListView fx:id="roomList" styleClass="room-list"/>
+    </center>
+
+    <bottom>
+        <Label fx:id="statusLabel" styleClass="status">
+            <padding>
+                <Insets top="8"/>
+            </padding>
+        </Label>
+    </bottom>
+
+</BorderPane>

@@ -31,7 +31,11 @@ public class ClientHandler implements Runnable {
         registered = false;
         try (
                 BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(socket.getInputStream()));) {
+                        new InputStreamReader(
+                            socket.getInputStream(), 
+                            StandardCharsets.UTF_8
+                        ));
+                    ) {
 
             writer = new PrintWriter(
                     new OutputStreamWriter(socket.getOutputStream(), 

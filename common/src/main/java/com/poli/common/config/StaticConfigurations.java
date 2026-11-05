@@ -6,7 +6,7 @@ public final class StaticConfigurations {
 
     //#region Server Configurations
 
-    public static final String SERVER_SOCKET_IP = "v1";
+    public static final String SERVER_SOCKET_IP = "localhost";
     public static final int SERVER_SOCKET_PORT = 5000;
 
     //#endregion

@@ -1,7 +1,7 @@
 package com.poli.client.controller;
 
+import com.poli.client.ClientApplication;
 import com.poli.client.session.UserSession;
-import com.poli.client.socket.IResponseListener;
 import com.poli.client.socket.SocketClient;
 import com.poli.common.dto.Request;
 import com.poli.common.dto.Response;
@@ -12,15 +12,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import javafx.application.Platform;
+
 import java.io.IOException;
 
 public class LoginController {
-
-    private SocketClient client;
 
     @FXML
     private TextField hostField;
@@ -32,18 +31,26 @@ public class LoginController {
     private TextField usernameField;
 
     @FXML
+    private Button connectButton;
+
+    @FXML
     private Label statusLabel;
+
+    /** Permite mostrar un mensaje al volver al login (logout, conexión perdida). */
+    public void setStatus(String message) {
+        statusLabel.setText(message);
+    }
 
     @FXML
     private void connectToServer() {
 
-        String host = hostField.getText();
-        String username = usernameField.getText();
+        String host = hostField.getText().trim();
+        String username = usernameField.getText().trim();
 
         int port;
 
         try {
-            port = Integer.parseInt(portField.getText());
+            port = Integer.parseInt(portField.getText().trim());
         } catch (NumberFormatException e) {
             statusLabel.setText("Puerto inválido");
             return;
@@ -61,15 +68,11 @@ public class LoginController {
             @Override
             protected Response call() throws Exception {
 
+                updateMessage("Conectando...");
+
                 newClient.connect(host, port);
 
-                Request request = new Request(
-                        MessageType.CONNECT,
-                        username,
-                        null,
-                        null);
-
-                newClient.send(request);
+                newClient.send(new Request(MessageType.CONNECT, username, null, null));
 
                 Response response = newClient.receive();
 
@@ -80,106 +83,70 @@ public class LoginController {
         };
 
         statusLabel.textProperty().bind(task.messageProperty());
+        connectButton.setDisable(true);
 
         task.setOnFailed(event -> {
 
             statusLabel.textProperty().unbind();
+            connectButton.setDisable(false);
 
-            statusLabel.setText(
-                    "Error: " + task.getException().getMessage());
+            statusLabel.setText("Error: " + task.getException().getMessage());
 
-            try {
-                newClient.disconnect();
-            } catch (IOException ignored) {
-            }
+            disconnectQuietly(newClient);
         });
 
         task.setOnSucceeded(event -> {
 
             statusLabel.textProperty().unbind();
+            connectButton.setDisable(false);
 
             Response response = task.getValue();
 
             if (!response.success()) {
-
                 statusLabel.setText(response.message());
-
-                try {
-                    newClient.disconnect();
-                } catch (IOException ignored) {
-                }
-
+                disconnectQuietly(newClient);
                 return;
             }
-            client = newClient;
 
-            // 1. Crear la sesión del usuario
-            UserSession userSession = new UserSession(
-                    username,
-                    newClient);
-
-            // 2. Iniciar el listener del socket
-            client.startListening(
-                    new IResponseListener() {
-
-                        @Override
-                        public void onResponse(Response response) {
-                            Platform.runLater(() -> {
-                                System.out.println(
-                                        "Respuesta recibida: "
-                                                + response.message());
-                            });
-                        }
-
-                        @Override
-                        public void onError(IOException exception) {
-                            Platform.runLater(() -> {
-                                statusLabel.setText(
-                                        "Conexión perdida: "
-                                                + exception.getMessage());
-                            });
-                        }
-                    });
-
-            statusLabel.setText(
-                    "Conexión establecida correctamente");
-
-            try {
-
-                // 3. Cargar main.fxml
-                FXMLLoader loader = new FXMLLoader(
-                        getClass().getResource("/fxml/main.fxml"));
-
-                Parent root = loader.load();
-
-                // 4. Obtener el MainController
-                MainController mainController = loader.getController();
-
-                // 5. Entregar la sesión
-                mainController.setUserSession(userSession);
-
-                // 6. Cambiar la escena actual
-                Scene mainScene = new Scene(root, 900, 600);
-
-                Stage stage = (Stage) statusLabel
-                        .getScene()
-                        .getWindow();
-
-                stage.setTitle("Chat Socket Poli");
-                stage.setScene(mainScene);
-                stage.centerOnScreen();
-
-            } catch (IOException e) {
-
-                e.printStackTrace();
-
-                statusLabel.setText(
-                        "Error al cargar la pantalla principal");
-            }
+            openMainScreen(new UserSession(username, newClient));
         });
 
-        Thread thread = new Thread(task);
+        Thread thread = new Thread(task, "Login-Task");
         thread.setDaemon(true);
         thread.start();
+    }
+
+    private void openMainScreen(UserSession userSession) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main.fxml"));
+            Parent root = loader.load();
+
+            MainController mainController = loader.getController();
+
+            // Primero se registran los manejadores de la primera pantalla
+            // y luego se empieza a escuchar, para no perder respuestas.
+            mainController.setUserSession(userSession);
+            userSession.startListening();
+
+            Scene mainScene = new Scene(root, ClientApplication.MAIN_WIDTH, ClientApplication.MAIN_HEIGHT);
+            ClientApplication.applyStyles(mainScene);
+
+            Stage stage = (Stage) statusLabel.getScene().getWindow();
+            stage.setTitle("Chat Socket Poli");
+            stage.setScene(mainScene);
+            stage.centerOnScreen();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            statusLabel.setText("Error al cargar la pantalla principal");
+            userSession.closeSession();
+        }
+    }
+
+    private static void disconnectQuietly(SocketClient client) {
+        try {
+            client.disconnect();
+        } catch (IOException ignored) {
+        }
     }
 }

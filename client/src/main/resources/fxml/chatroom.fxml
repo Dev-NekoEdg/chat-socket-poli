@@ -4,10 +4,59 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.poli.client.controller.ChatRoomController"
-      alignment="CENTER"
-      spacing="15">
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.poli.client.controller.ChatRoomController">
 
-</VBox>
+    <padding>
+        <Insets top="16" right="20" bottom="12" left="20"/>
+    </padding>
+
+    <!-- Encabezado: nombre de la sala y, debajo, los participantes -->
+    <top>
+        <VBox spacing="4">
+            <padding>
+                <Insets bottom="12"/>
+            </padding>
+
+            <Label fx:id="roomNameLabel" styleClass="title"/>
+            <Label fx:id="participantsLabel" styleClass="muted" wrapText="true"/>
+        </VBox>
+    </top>
+
+    <!-- Mensajes -->
+    <center>
+        <ListView fx:id="messageList" styleClass="message-list"/>
+    </center>
+
+    <!-- Escritura de mensajes y volver -->
+    <bottom>
+        <VBox spacing="8">
+            <padding>
+                <Insets top="12"/>
+            </padding>
+
+            <HBox spacing="10" alignment="BOTTOM_RIGHT">
+                <TextArea fx:id="messageInput"
+                          HBox.hgrow="ALWAYS"
+                          prefRowCount="3"
+                          wrapText="true"
+                          promptText="Escribe un mensaje... (Enter para enviar, Shift+Enter para nueva línea)"/>
+
+                <Button fx:id="sendButton"
+                        text="Enviar"
+                        onAction="#handleSend"
+                        styleClass="button-primary"
+                        prefWidth="100"
+                        maxHeight="Infinity"/>
+            </HBox>
+
+            <Label fx:id="statusLabel" styleClass="status" wrapText="true"/>
+
+            <HBox alignment="CENTER_LEFT">
+                <Button text="← Volver a conversaciones" onAction="#handleBack"/>
+            </HBox>
+        </VBox>
+    </bottom>
+
+</BorderPane>
